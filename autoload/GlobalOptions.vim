@@ -1,0 +1,82 @@
+" GlobalOptions.vim: Turn global options into buffer- or window-local ones.
+"
+" DEPENDENCIES:
+"
+" Copyright: (C) 2012 Ingo Karkat
+"   The VIM LICENSE applies to this script; see ':help copyright'.
+"
+" Maintainer:	Ingo Karkat <ingo@karkat.de>
+"
+" REVISION	DATE		REMARKS
+"	001	26-Dec-2012	file creation
+
+let s:save_globals = {}
+function! s:Push( option, value )
+    execute 'let s:save_globals[a:option] = &g:' . a:option
+    execute 'let &g:' . a:option '=' string(a:value)
+endfunction
+function! s:Pop( option )
+    if has_key(s:save_globals, a:option)
+	execute 'let &g:' . a:option '=' string(s:save_globals[a:option])
+	unlet s:save_globals[a:option]
+    endif
+endfunction
+function! GlobalOptions#SetBufferLocal( option, value )
+    if ! has_key(s:save_globals, a:option)
+	call s:Push(a:option, a:value)
+    endif
+
+    execute 'augroup b_' . a:option
+	execute printf('autocmd! BufEnter <buffer> call <SID>Push(%s, %s)', string(a:option), string(a:value))
+	execute printf('autocmd! BufLeave <buffer> call <SID>Pop(%s)', string(a:option))
+    augroup END
+endfunction
+function! GlobalOptions#ClearBufferLocal( option )
+    silent! execute 'autocmd! b_' . a:option '<buffer>'
+
+    call s:Pop(a:option)
+endfunction
+
+
+function! s:SetGlobalWindowsOptions()
+    if ! exists('w:GlobalWindowOptions')
+	return
+    endif
+
+    for l:option in keys(w:GlobalWindowOptions)
+	call s:Push(l:option, w:GlobalWindowOptions[l:option])
+    endfor
+endfunction
+function! s:RestoreGlobalWindowsOptions()
+    if ! exists('w:GlobalWindowOptions')
+	return
+    endif
+
+    for l:option in keys(w:GlobalWindowOptions)
+	call s:Pop(l:option)
+    endfor
+endfunction
+function! GlobalOptions#SetWindowLocal( option, value )
+    if ! has_key(s:save_globals, a:option)
+	call s:Push(a:option, a:value)
+
+	if ! exists('w:GlobalWindowOptions')
+	    let w:GlobalWindowOptions = {}
+	endif
+	let w:GlobalWindowOptions[a:option] = a:value
+    endif
+
+    if ! exists('#GlobalWindowOptions#WinEnter')
+	augroup GlobalWindowOptions
+	    autocmd! WinEnter * call <SID>SetGlobalWindowsOptions()
+	    autocmd! WinLeave * call <SID>RestoreGlobalWindowsOptions()
+	augroup END
+    endif
+endfunction
+function! GlobalOptions#ClearWindowLocal( option )
+    unlet! w:GlobalWindowOptions[a:option]
+
+    call s:Pop(a:option)
+endfunction
+
+" vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
