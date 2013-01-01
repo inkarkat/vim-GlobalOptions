@@ -8,23 +8,28 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	002	28-Dec-2012	Move existence of saved value check into
+"				s:Push() to fix when dropping file with
+"				buffer-local setting.
 "	001	26-Dec-2012	file creation
 
 let s:save_globals = {}
 function! s:Push( option, value )
-    execute 'let s:save_globals[a:option] = &g:' . a:option
+    if ! has_key(s:save_globals, a:option)
+	execute 'let s:save_globals[a:option] = &g:' . a:option
+    endif
     execute 'let &g:' . a:option '=' string(a:value)
+"****D echomsg '**** Push' a:option . '=' . a:value 'over' s:save_globals[a:option]
 endfunction
 function! s:Pop( option )
     if has_key(s:save_globals, a:option)
+"****D echomsg '**** Pop ' a:option . '=' .  string(s:save_globals[a:option])
 	execute 'let &g:' . a:option '=' string(s:save_globals[a:option])
 	unlet s:save_globals[a:option]
     endif
 endfunction
 function! GlobalOptions#SetBufferLocal( option, value )
-    if ! has_key(s:save_globals, a:option)
-	call s:Push(a:option, a:value)
-    endif
+    call s:Push(a:option, a:value)
 
     execute 'augroup b_' . a:option
 	execute printf('autocmd! BufEnter <buffer> call <SID>Push(%s, %s)', string(a:option), string(a:value))
@@ -57,14 +62,12 @@ function! s:RestoreGlobalWindowsOptions()
     endfor
 endfunction
 function! GlobalOptions#SetWindowLocal( option, value )
-    if ! has_key(s:save_globals, a:option)
-	call s:Push(a:option, a:value)
+    call s:Push(a:option, a:value)
 
-	if ! exists('w:GlobalWindowOptions')
-	    let w:GlobalWindowOptions = {}
-	endif
-	let w:GlobalWindowOptions[a:option] = a:value
+    if ! exists('w:GlobalWindowOptions')
+	let w:GlobalWindowOptions = {}
     endif
+    let w:GlobalWindowOptions[a:option] = a:value
 
     if ! exists('#GlobalWindowOptions#WinEnter')
 	augroup GlobalWindowOptions
