@@ -2,12 +2,14 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012 Ingo Karkat
+" Copyright: (C) 2012-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	003	02-Jan-2013	Add GlobalOptions#GetBufferLocals() to allow
+"				newly introduced :SetBufferLocal command access.
 "	002	28-Dec-2012	Move existence of saved value check into
 "				s:Push() to fix when dropping file with
 "				buffer-local setting.
@@ -28,6 +30,7 @@ function! s:Pop( option )
 	unlet s:save_globals[a:option]
     endif
 endfunction
+
 function! GlobalOptions#SetBufferLocal( option, value )
     call s:Push(a:option, a:value)
 
@@ -40,6 +43,9 @@ function! GlobalOptions#ClearBufferLocal( option )
     silent! execute 'autocmd! b_' . a:option '<buffer>'
 
     call s:Pop(a:option)
+endfunction
+function! GlobalOptions#GetBufferLocals()
+    return filter(keys(s:save_globals), 'exists(printf("#b_%s#BufEnter", v:val))')
 endfunction
 
 
