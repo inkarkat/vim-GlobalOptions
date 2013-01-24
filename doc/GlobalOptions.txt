@@ -69,16 +69,17 @@ GlobalOptions#ClearWindowLocal({option})
 EXAMPLE						       *GlobalOptions-example*
 
 Place the current line in the middle of the window by setting 'scrolloff' (a
-global option) to a large value, but only for a certain filetype (best placed
-into ~/.vim/ftplugin/{filetype}.vim): >
-    :SetBufferLocal scrolloff=999
-    :let b:undo_ftplugin = 'call GlobalOptions#ClearBufferLocal("scrolloff")'
-Note that we use the API function in the undo command to avoid an error when
-the buffer-local option has already been unset.
-
-Place the current line in the middle of the window by setting 'scrolloff' (a
 global option) to a large value, but only for the current window: >
     :SetWindowLocal scrolloff=999
+<
+Place the current line in the middle of the window by setting 'scrolloff' (a
+global option) to a large value, but only for a certain filetype (best placed
+into ~/.vim/ftplugin/{filetype}.vim): >
+    :call GlobalOptions#SetBufferLocal('scrolloff', 999)
+    :let b:undo_ftplugin = 'call GlobalOptions#ClearBufferLocal("scrolloff")'
+Note that we use the API function in the undo command to avoid an error when
+the buffer-local option has already been unset. (And also for setting it, to
+be consistent and because it's slightly more efficient.)
 
 ==============================================================================
 INSTALLATION					  *GlobalOptions-installation*
