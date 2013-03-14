@@ -99,6 +99,13 @@ DEPENDENCIES					  *GlobalOptions-dependencies*
 ==============================================================================
 LIMITATIONS					   *GlobalOptions-limitations*
 
+- The plugin's correct operation depends on the execution of its autocmds.
+  Mappings or other plugins that modify 'eventignore' or issue commands with
+  |:noautocmd| can disturb this.
+- Similarly, functionality that saves / restores windows (e.g. ZoomWin) might
+  mess with the window-local plugin variable. Same might apply to session save
+  and restore.
+
 KNOWN PROBLEMS					*GlobalOptions-known-problems*
 
 TODO							  *GlobalOptions-todo*
@@ -108,7 +115,7 @@ IDEAS							 *GlobalOptions-ideas*
 ==============================================================================
 HISTORY						       *GlobalOptions-history*
 
-GOAL
+1.00	25-Jan-2013
 First published version.
 
 0.01	26-Dec-2012
