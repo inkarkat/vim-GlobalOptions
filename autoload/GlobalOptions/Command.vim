@@ -2,6 +2,7 @@
 "
 " DEPENDENCIES:
 "   - GlobalOptions.vim autoload script
+"   - ingo/escape.vim autoload script
 "
 " Copyright: (C) 2012-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -9,6 +10,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	002	15-Jun-2013	Replace s:Unescape() with generic
+"				ingo#escape#Unescape().
 "	001	02-Jan-2013	file creation
 
 function! s:ErrorMsg( text )
@@ -25,9 +28,6 @@ function! s:OptionCheck( parsedOption )
 
     return a:parsedOption
 endfunction
-function! s:Unescape( expr )
-    return substitute(a:expr, '\%(\%(^\|[^\\]\)\%(\\\\\)*\\\)\@<!\\\([\\ ]\)', '\1', 'g')
-endfunction
 function! s:Parse( option )
     if a:option =~# '^no\a\+$'
 	return s:OptionCheck(['set', a:option[2:], '0'])
@@ -39,7 +39,7 @@ function! s:Parse( option )
 	return s:OptionCheck(['clear', a:option[0:-2], ''])
     elseif a:option =~# '^\a\+='
 	let l:pos = stridx(a:option, '=')
-	return s:OptionCheck(['set', strpart(a:option, 0, l:pos), s:Unescape(strpart(a:option, l:pos + 1))])
+	return s:OptionCheck(['set', strpart(a:option, 0, l:pos), ingo#escape#Unescape(strpart(a:option, l:pos + 1), '\ ')])
     else
 	return ['invalid', a:option, '']
     endif
