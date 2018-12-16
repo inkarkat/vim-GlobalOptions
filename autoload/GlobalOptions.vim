@@ -2,12 +2,18 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2013 Ingo Karkat
+" Copyright: (C) 2012-2018 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	005	17-Dec-2018	BUG: "E121: Undefined variable:
+"                               w:GlobalWindowOptions" in
+"                               GlobalOptions#ClearWindowLocal(). The :unlet!
+"                               only protects the Dict key, but not the Dict
+"                               itself. Need to initialize w:GlobalWindowOptions
+"                               if necessary.
 "	004	03-Jan-2013	Include "#<buffer>" pattern in filter;
 "				otherwise, the predicate will be true in
 "				non-BufferLocal buffers, too. (Though it
@@ -90,6 +96,9 @@ function! GlobalOptions#SetWindowLocal( option, value )
     endif
 endfunction
 function! GlobalOptions#ClearWindowLocal( option )
+    if ! exists('w:GlobalWindowOptions')
+	let w:GlobalWindowOptions = {}
+    endif
     unlet! w:GlobalWindowOptions[a:option]
 
     call s:Pop(a:option)
