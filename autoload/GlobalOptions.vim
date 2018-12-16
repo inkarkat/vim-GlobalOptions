@@ -8,6 +8,13 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	004	03-Jan-2013	Include "#<buffer>" pattern in filter;
+"				otherwise, the predicate will be true in
+"				non-BufferLocal buffers, too. (Though it
+"				shouldn't matter, as s:save_globals isn't filled
+"				there.)
+"				FIX: Must include * event pattern to remove
+"				the group's autocmds for the current buffer.
 "	003	02-Jan-2013	Add GlobalOptions#GetBufferLocals() to allow
 "				newly introduced :SetBufferLocal command access.
 "	002	28-Dec-2012	Move existence of saved value check into
@@ -40,12 +47,12 @@ function! GlobalOptions#SetBufferLocal( option, value )
     augroup END
 endfunction
 function! GlobalOptions#ClearBufferLocal( option )
-    silent! execute 'autocmd! b_' . a:option '<buffer>'
+    silent! execute 'autocmd! b_' . a:option '* <buffer>'
 
     call s:Pop(a:option)
 endfunction
 function! GlobalOptions#GetBufferLocals()
-    return filter(keys(s:save_globals), 'exists(printf("#b_%s#BufEnter", v:val))')
+    return filter(keys(s:save_globals), 'exists(printf("#b_%s#BufEnter#<buffer>", v:val))')
 endfunction
 
 
