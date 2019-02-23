@@ -11,9 +11,8 @@
 "	005	17-Dec-2018	BUG: "E121: Undefined variable:
 "                               w:GlobalWindowOptions" in
 "                               GlobalOptions#ClearWindowLocal(). The :unlet!
-"                               only protects the Dict key, but not the Dict
-"                               itself. Need to initialize w:GlobalWindowOptions
-"                               if necessary.
+"                               protects neither the Dict key, nor the Dict
+"                               itself. Need to check for both.
 "	004	03-Jan-2013	Include "#<buffer>" pattern in filter;
 "				otherwise, the predicate will be true in
 "				non-BufferLocal buffers, too. (Though it
@@ -96,10 +95,9 @@ function! GlobalOptions#SetWindowLocal( option, value )
     endif
 endfunction
 function! GlobalOptions#ClearWindowLocal( option )
-    if ! exists('w:GlobalWindowOptions')
-	let w:GlobalWindowOptions = {}
+    if exists('w:GlobalWindowOptions') && has_key(w:GlobalWindowOptions, a:option)
+	unlet w:GlobalWindowOptions[a:option]
     endif
-    unlet! w:GlobalWindowOptions[a:option]
 
     call s:Pop(a:option)
 endfunction
