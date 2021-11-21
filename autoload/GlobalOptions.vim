@@ -2,17 +2,17 @@
 "
 " DEPENDENCIES:
 "
-" Copyright: (C) 2012-2018 Ingo Karkat
+" Copyright: (C) 2012-2019 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
 "	005	17-Dec-2018	BUG: "E121: Undefined variable:
-"                               w:GlobalWindowOptions" in
-"                               GlobalOptions#ClearWindowLocal(). The :unlet!
-"                               protects neither the Dict key, nor the Dict
-"                               itself. Need to check for both.
+"				w:GlobalWindowOptions" in
+"				GlobalOptions#ClearWindowLocal(). The :unlet!
+"				protects neither the Dict key, nor the Dict
+"				itself. Need to check for both.
 "	004	03-Jan-2013	Include "#<buffer>" pattern in filter;
 "				otherwise, the predicate will be true in
 "				non-BufferLocal buffers, too. (Though it
