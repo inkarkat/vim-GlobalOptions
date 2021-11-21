@@ -2,24 +2,19 @@
 "
 " DEPENDENCIES:
 "   - GlobalOptions.vim autoload script
+"   - ingo/err.vim autoload script
 "   - ingo/escape.vim autoload script
 "
-" Copyright: (C) 2012-2013 Ingo Karkat
+" Copyright: (C) 2012-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	003	05-May-2014	Abort on error.
 "	002	15-Jun-2013	Replace s:Unescape() with generic
 "				ingo#escape#Unescape().
 "	001	02-Jan-2013	file creation
-
-function! s:ErrorMsg( text )
-    let v:errmsg = a:text
-    echohl ErrorMsg
-    echomsg v:errmsg
-    echohl None
-endfunction
 
 function! s:OptionCheck( parsedOption )
     if ! exists('&' . a:parsedOption[1])
@@ -75,19 +70,21 @@ function! GlobalOptions#Command#BufferLocal( options )
 		call GlobalOptions#SetBufferLocal(l:option, l:value)
 	    elseif l:action ==# 'clear'
 		if ! s:HasBufferLocalOption(l:option)
-		    call s:ErrorMsg(printf('No buffer-local option: %s', l:option))
-		    return
+		    call ingo#err#Set(printf('No buffer-local option: %s', l:option))
+		    return 0
 		endif
 
 		call GlobalOptions#ClearBufferLocal(l:option)
 	    elseif l:action ==# 'invalid'
-		call s:ErrorMsg(printf('Unknown option: %s', l:option))
-		return
+		call ingo#err#Set(printf('Unknown option: %s', l:option))
+		return 0
 	    else
 		throw 'ASSERT: Invalid action ' . string(l:action)
 	    endif
 	endfor
     endif
+
+    return 1
 endfunction
 
 
@@ -114,19 +111,21 @@ function! GlobalOptions#Command#WindowLocal( options )
 		call GlobalOptions#SetWindowLocal(l:option, l:value)
 	    elseif l:action ==# 'clear'
 		if ! exists('w:GlobalWindowOptions') || ! has_key(w:GlobalWindowOptions, l:option)
-		    call s:ErrorMsg(printf('No window-local option: %s', l:option))
-		    return
+		    call ingo#err#Set(printf('No window-local option: %s', l:option))
+		    return 0
 		endif
 
 		call GlobalOptions#ClearWindowLocal(l:option)
 	    elseif l:action ==# 'invalid'
-		call s:ErrorMsg(printf('Unknown option: %s', l:option))
-		return
+		call ingo#err#Set(printf('Unknown option: %s', l:option))
+		return 0
 	    else
 		throw 'ASSERT: Invalid action ' . string(l:action)
 	    endif
 	endfor
     endif
+
+    return 1
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
