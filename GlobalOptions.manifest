@@ -1,0 +1,4 @@
+autoload/GlobalOptions.vim
+autoload/GlobalOptions/Command.vim
+plugin/GlobalOptions.vim
+doc/GlobalOptions.txt
